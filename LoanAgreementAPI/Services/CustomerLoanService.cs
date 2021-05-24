@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
@@ -28,9 +29,9 @@ namespace LoanAgreementAPI.Services
 
             var Customerloan = new TbCustomerLoan
             {
-              AgreementId = model.AgreementId,
+              AgreementId = model.AgreementTypeId,
               CustomerId = model.CustomerId,
-              Amount =  model.Amount,
+              Amount = model.Amount,
               ReturnInterest =  model.ReturnInterest,
               RepoRate = model.RepoRate,
               StartDate =  model.StartDate,
@@ -49,10 +50,10 @@ namespace LoanAgreementAPI.Services
 
             var Customerloanobj = new CustomerLoanViewModel
             {
-                AgreementId = result.AgreementId,
+                AgreementTypeId = result.AgreementId,
                 CustomerId = result.CustomerId,
-                Amount = result.Amount,
-                ReturnInterest = result.ReturnInterest,
+                Amount = Convert.ToDecimal(result.Amount),
+                ReturnInterest = Convert.ToDecimal(result.ReturnInterest),
                 RepoRate = result.RepoRate
             };
 
@@ -69,10 +70,10 @@ namespace LoanAgreementAPI.Services
             {
                 Allcustomerloans.Add(new CustomerLoanViewModel
                 {
-                    AgreementId = item.AgreementId,
+                    AgreementTypeId = item.AgreementId,
                     CustomerId = item.CustomerId,
-                    Amount = item.Amount,
-                    ReturnInterest = item.ReturnInterest,
+                    Amount = Convert.ToDecimal(item.Amount),
+                    ReturnInterest = Convert.ToDecimal(item.ReturnInterest),
                     RepoRate = item.RepoRate,
                     StartDate =  item.StartDate,
                     EndDate = item.EndDate
@@ -85,7 +86,7 @@ namespace LoanAgreementAPI.Services
             return Allcustomerloans;
         }
 
-        public async Task<CustomerLoanViewModel> RequestLoanAgreement(string Stardte, string Enddate,double Reporate, int AgreementTypeId, double Amount, int CustomerId)
+        public async Task<CustomerLoanViewModel> RequestLoanAgreement(string Stardte, string Enddate,double Reporate, int AgreementTypeId, double Amount)
         {
 
             using(SqlConnection sql = new SqlConnection(_conectionstring))
@@ -98,63 +99,45 @@ namespace LoanAgreementAPI.Services
                     cmd.Parameters.Add(new SqlParameter("@StartDate", Stardte));
                     cmd.Parameters.Add(new SqlParameter("@EndDate", Enddate));
                     cmd.Parameters.Add(new SqlParameter("@RepoRate", Reporate));
-                    cmd.Parameters.Add(new SqlParameter("@CustomerId", CustomerId));
+                    ////cmd.Parameters.Add(new SqlParameter("@CustomerId", CustomerId));
+                    cmd.Parameters.Add(new SqlParameter("@return_status", ParameterDirection.Output));
+                    cmd.Parameters.Add(new SqlParameter("@Calculation",ParameterDirection.Output));
+                    cmd.Parameters.Add(new SqlParameter("@return_message", ParameterDirection.Output));
+                    cmd.Parameters.Add(new SqlParameter("@return_Agreementtype", ParameterDirection.Output));
+
+                  
                     CustomerLoanViewModel response = null;
                     await sql.OpenAsync();
-
-                    using (var reader = await cmd.ExecuteReaderAsync())
+                    try
                     {
-                        while ( await reader.ReadAsync())
+                        using (var reader = await cmd.ExecuteReaderAsync())
                         {
-                            response  = MapTovalue(reader);
+                            while (await reader.ReadAsync())
+                            {
+                                response = MapTovalue(reader);
+                            }
                         }
                     }
+                    catch(Exception e)
+                    { }
+
+                   
                     return response;
                 }
                
             }
         }
 
-        public async Task<List<CustomerLoanViewModel>> GetAgreementReturen(CustomerLoanViewModel model)
-        {
-
-            var AgreementTypeID = new SqlParameter("@AgreementTypeID", model.AgreementId);
-            var Amount = new SqlParameter("@Amount", model.Amount);
-            var StartDate = new SqlParameter("@StartDate", model.StartDate);
-            var EndDate = new SqlParameter("@EndDate", model.EndDate);
-            var RepoRate = new SqlParameter("@RepoRate", model.RepoRate);
-            var CustomerId = new SqlParameter("@CustomerId", model.CustomerId);
-          
-            var users = await _dbContext
-                     .Customerloanmodel.FromSql("exec dbo.AgreementInterestReturn @AgreementTypeID, @Amount,@StartDate,@EndDate,@RepoRate,@CustomerId,", AgreementTypeID, Amount, StartDate, EndDate, RepoRate, CustomerId)
-                     .ToListAsync();
-            //var baseItem = _dbContext.TbCustomer.FromSql("Execute dbo.GetBaseItems @id = {0} ,@name = {1}", id, "itemName");
-            return users;
-        }
-
-
-        public async  Task<List<CustomerViewModel>> GetAgreement( CustomerViewModel model)
-        {
-            var email = new SqlParameter("@email", model.Email);
-            var CustomerId = new SqlParameter("@CustomerId", model.CustomerId);
-
-            var users = await _dbContext
-                        .Customermodel.FromSql("exec GetCustomers @email, @CustomerId", email, CustomerId)
-                        .ToListAsync();
-            //var baseItem = _dbContext.TbCustomer.FromSql("Execute dbo.GetBaseItems @id = {0} ,@name = {1}", id, "itemName");
-            return users;
-        }
-
+     
         public CustomerLoanViewModel MapTovalue(SqlDataReader reader)
         {
             return new CustomerLoanViewModel()
             {
-                ReturnInterest = (float)reader["Calculation"],
+                ReturnInterest = Convert.ToDecimal(reader["Calculation"]),
                 StatusCode = (int)reader["return_status"],
                 TransectionMessage = reader["return_message"].ToString(),
-                AgreementId = (int)reader["return_Agreementtype"],
-                CustomerId = (int)reader["CustomerId"],
-                Amount = (float)reader["Amount"],
+                Agreementpicked = reader["return_Agreementtype"].ToString(),
+                Amount = Convert.ToDecimal(reader["Amount"]),
             };
         }
      

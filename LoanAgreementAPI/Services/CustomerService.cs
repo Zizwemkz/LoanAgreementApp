@@ -57,7 +57,7 @@ namespace LoanAgreementAPI.Services
             var Itemlist = await _dbContext.TbCustomer.ToListAsync();
             var Allcustomers = new List<CustomerViewModel>();
 
-            foreach (var item in Allcustomers)
+            foreach (var item in Itemlist)
             {
                 Allcustomers.Add(new CustomerViewModel
                 {

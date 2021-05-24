@@ -31,30 +31,10 @@ namespace LoanAgreementAPI.Controllers
 
 
            // GET: api/Item
-        [HttpGet("{Stardte}/{Enddate}/{Reporate}/{AgreementTypeId}/{Amount}/{CustomerId}")]
-        public async Task<ActionResult<CustomerLoanViewModel>> Get(string Stardte, string Enddate, double Reporate, int AgreementTypeId, double Amount, int CustomerId)
+        [HttpGet("{Stardte}/{Enddate}/{Reporate}/{AgreementTypeId}/{Amount}")]
+        public async Task<ActionResult<CustomerLoanViewModel>> Get(string Stardte, string Enddate, double Reporate, int AgreementTypeId, double Amount)
         {
-            return Ok(await _CustomerloanService.RequestLoanAgreement(Stardte, Enddate, Reporate, AgreementTypeId, Amount, CustomerId));
-        }
-
-
-        // GET: api/Item
-        //[HttpGet()]
-        //public async Task<List<CustomerLoanViewModel>> Get()
-        //{
-        //    return (await _CustomerloanService.GetAllCustomerAsync());
-        //}
-
-        [HttpGet()]
-        public async Task<List<CustomerViewModel>> Get([FromBody] CustomerViewModel model)
-        {
-            return (await _CustomerloanService.GetAgreement(model));
-        }
-
-        [HttpGet()]
-        public async Task<List<CustomerLoanViewModel>> Get([FromBody] CustomerLoanViewModel model)
-        {
-            return (await _CustomerloanService.GetAgreementReturen(model));
+            return Ok(await _CustomerloanService.RequestLoanAgreement(Stardte, Enddate, Reporate, AgreementTypeId, Amount));
         }
 
 

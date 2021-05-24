@@ -23,8 +23,8 @@ namespace LoanAgreementAPI.Models
         [Display(Name = "Customer")]
         public int CustomerId { get; set; }
 
-        public float Amount { get; set; }
-        public float ReturnInterest { get; set; }
+        public decimal Amount { get; set; }
+        public decimal ReturnInterest { get; set; }
         public double RepoRate { get; set; }
 
         public DateTime StartDate { get; set; }

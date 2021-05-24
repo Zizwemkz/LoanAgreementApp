@@ -11,8 +11,6 @@ namespace LoanAgreementAPI.Interfaces
         Task<int> AddCustomerLoandAsync(CustomerLoanViewModel mode);
         Task<CustomerLoanViewModel> GetCustomerloanByIdAsync(int CustomerloanId);
         Task<List<CustomerLoanViewModel>> GetAllCustomerAsync();
-        Task<CustomerLoanViewModel> RequestLoanAgreement(string Stardte, string Enddate, double Reporate, int AgreementTypeId, double Amount, int CustomerId);
-        Task<List<CustomerViewModel>> GetAgreement(CustomerViewModel mode); 
-        Task<List<CustomerLoanViewModel>> GetAgreementReturen(CustomerLoanViewModel mode);
+        Task<CustomerLoanViewModel> RequestLoanAgreement(string Stardte, string Enddate, double Reporate, int AgreementTypeId, double Amount);
     }
 }
